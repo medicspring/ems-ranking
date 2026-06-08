@@ -13,7 +13,7 @@
     min-height: 100vh;
     padding: 2rem 1rem;
   }
-  .container { max-width: 720px; margin: 0 auto; }
+  .container { max-width: 740px; margin: 0 auto; }
   .header {
     background: #fff;
     border: 1px solid #e0dfd8;
@@ -63,20 +63,23 @@
     margin-bottom: 1.25rem;
   }
   .epic-item {
+    border-bottom: 1px solid #f0efe8;
+    background: #fff;
+    transition: background 0.12s;
+  }
+  .epic-item:last-child { border-bottom: none; }
+  .epic-item.dragging { opacity: 0.35; background: #f5f5f3; }
+  .epic-item.drag-over { background: #eef4fb; }
+  /* drag row */
+  .epic-row {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 11px 16px;
-    border-bottom: 1px solid #f0efe8;
     cursor: grab;
     user-select: none;
-    transition: background 0.12s;
-    background: #fff;
   }
-  .epic-item:last-child { border-bottom: none; }
-  .epic-item:hover { background: #fafaf8; }
-  .epic-item.dragging { opacity: 0.35; background: #f5f5f3; }
-  .epic-item.drag-over { background: #eef4fb; border-bottom-color: #a8c4e0; }
+  .epic-item.dragging .epic-row { cursor: grabbing; }
   .rank-num {
     font-size: 12px;
     font-weight: 600;
@@ -84,6 +87,7 @@
     min-width: 24px;
     text-align: right;
     font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
   }
   .rank-num.top3 { color: #4a7fc1; }
   .drag-handle {
@@ -91,8 +95,56 @@
     font-size: 15px;
     line-height: 1;
     letter-spacing: -1px;
+    flex-shrink: 0;
   }
-  .epic-label { font-size: 13px; color: #1a1a18; flex: 1; line-height: 1.45; }
+  .epic-main { flex: 1; min-width: 0; }
+  .epic-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .epic-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1a1a18;
+    line-height: 1.4;
+    flex: 1;
+  }
+  .expand-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #4a7fc1;
+    background: #eef4fb;
+    border: 1px solid #c0d8f0;
+    border-radius: 5px;
+    padding: 2px 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-family: inherit;
+    transition: background 0.12s;
+    user-select: none;
+  }
+  .expand-btn:hover { background: #ddeaf7; }
+  .expand-btn .arrow {
+    display: inline-block;
+    transition: transform 0.2s;
+    font-style: normal;
+    font-size: 10px;
+  }
+  .expand-btn.open .arrow { transform: rotate(180deg); }
+  .epic-desc {
+    display: none;
+    font-size: 12.5px;
+    color: #555;
+    line-height: 1.55;
+    padding: 6px 0 4px 0;
+    border-top: 1px dashed #ece9e0;
+    margin-top: 6px;
+  }
+  .epic-desc.visible { display: block; }
   .epic-tag {
     font-size: 11px;
     color: #999;
@@ -100,6 +152,7 @@
     border-radius: 4px;
     padding: 2px 7px;
     white-space: nowrap;
+    flex-shrink: 0;
   }
   .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .btn-submit {
@@ -129,12 +182,7 @@
     transition: background 0.12s;
   }
   .btn-reset:hover { background: #f5f5f3; }
-  .status {
-    font-size: 13px;
-    margin-top: 10px;
-    min-height: 18px;
-    color: #888;
-  }
+  .status { font-size: 13px; margin-top: 10px; min-height: 18px; color: #888; }
   .status.ok { color: #2a7a4a; }
   .status.err { color: #c03030; }
   .success-panel {
@@ -149,42 +197,102 @@
   .success-panel h2 { font-size: 17px; font-weight: 600; color: #1a5c34; margin-bottom: 6px; }
   .success-panel p { font-size: 14px; color: #2a7a4a; }
   .footer { font-size: 12px; color: #bbb; text-align: center; margin-top: 2rem; }
+  /* passphrase gate */
+  .gate {
+    background: #fff;
+    border: 1px solid #e0dfd8;
+    border-radius: 12px;
+    padding: 2rem 1.75rem;
+    margin-bottom: 1.25rem;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  .gate h2 { font-size: 17px; font-weight: 600; color: #1a1a18; margin-bottom: 6px; }
+  .gate p { font-size: 13px; color: #888; margin-bottom: 1.25rem; line-height: 1.5; }
+  .gate input {
+    width: 100%;
+    padding: 9px 14px;
+    border: 1px solid #d0cfc8;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1a1a18;
+    background: #fafaf8;
+    outline: none;
+    margin-bottom: 10px;
+    transition: border-color 0.15s;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  .gate input:focus { border-color: #4a7fc1; background: #fff; }
+  .gate .btn-submit { width: 100%; }
+  .gate-error { font-size: 13px; color: #c03030; margin-top: 6px; min-height: 18px; }
+  .main-content { display: none; }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <div class="header">
-    <h1>EMS 2026 Roadmap — Epic Priority Ranking</h1>
-    <p>Drag and drop the items below into your order of priority, with #1 being the most important. Submit when you're done. Your input will be used to shape the product roadmap.</p>
+  <div class="gate" id="gate">
+    <h2>EMS 2026 Roadmap — Priority Ranking</h2>
+    <p>Enter the passphrase included in your invite to access the survey.</p>
+    <input type="password" id="passphrase-input" placeholder="Passphrase" maxlength="40" onkeydown="if(event.key==='Enter')checkPassphrase()" />
+    <button class="btn-submit" onclick="checkPassphrase()">Continue</button>
+    <p class="gate-error" id="gate-error"></p>
   </div>
 
-  <div class="name-section">
-    <label for="submitter-name">Your name</label>
-    <input type="text" id="submitter-name" placeholder="First and last name" maxlength="80" autocomplete="name" />
-  </div>
+  <div class="main-content" id="main-content">
 
-  <p class="instructions">Drag to reorder — #1 = highest priority</p>
+    <div class="header">
+      <h1>EMS 2026 Roadmap — Epic Priority Ranking</h1>
+      <p>Drag and drop the items below into your order of priority, with #1 being the most important. Click <strong>Details</strong> on any item to read a description before ranking. Submit when you're done.</p>
+    </div>
 
-  <div class="list-wrap" id="epic-list"></div>
+    <div class="name-section">
+      <label for="submitter-name">Your name</label>
+      <input type="text" id="submitter-name" placeholder="First and last name" maxlength="80" autocomplete="name" />
+    </div>
 
-  <div class="actions">
-    <button class="btn-submit" id="submit-btn" onclick="submitRanking()">Submit my ranking</button>
-    <button class="btn-reset" onclick="resetOrder()">Reset to original order</button>
-  </div>
-  <p class="status" id="status-msg"></p>
+    <p class="instructions">Drag to reorder — #1 = highest priority &nbsp;·&nbsp; Click "Details ▾" to read about an item</p>
 
-  <div class="success-panel" id="success-panel">
-    <h2>Ranking submitted!</h2>
-    <p id="success-msg">Thank you. Your response has been recorded.</p>
-  </div>
+    <div class="list-wrap" id="epic-list"></div>
 
-  <div class="footer">First Due · EMS Product Team · 2026 Roadmap Planning</div>
+    <div class="actions">
+      <button class="btn-submit" id="submit-btn" onclick="submitRanking()">Submit my ranking</button>
+      <button class="btn-reset" onclick="resetOrder()">Reset to original order</button>
+    </div>
+    <p class="status" id="status-msg"></p>
+
+    <div class="success-panel" id="success-panel">
+      <h2>Ranking submitted!</h2>
+      <p id="success-msg">Thank you. Your response has been recorded.</p>
+    </div>
+
+    <div class="footer">First Due · EMS Product Team · 2026 Roadmap Planning</div>
+
+  </div><!-- end main-content -->
 </div>
 
 <script>
 const SPREADSHEET_ID = '1MxErxX9X3ZVz1z8I-u3u9H-1Eu8J4FFYDBeB9Abb3dU';
 const SHEET_NAME = 'Sheet1';
+const PASSPHRASE = 'FirstDue2026';
+
+function checkPassphrase() {
+  const val = document.getElementById('passphrase-input').value.trim();
+  if (val === PASSPHRASE) {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  } else {
+    const err = document.getElementById('gate-error');
+    err.textContent = 'Incorrect passphrase. Check your invite and try again.';
+    document.getElementById('passphrase-input').style.borderColor = '#c03030';
+    setTimeout(() => { err.textContent = ''; document.getElementById('passphrase-input').style.borderColor = ''; }, 3000);
+  }
+}
+
 const SERVICE_ACCOUNT_EMAIL = 'roadmap-pcr@roadmap-pcr.iam.gserviceaccount.com';
 const PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
 MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCsRrYShEQPNDFj
@@ -216,41 +324,42 @@ IsDgF7iUqBGLTJoxoAvlXL7CZIwf+pmRrul0HBghGvXiJJSDC+dpbffC8xQE34aL
 -----END PRIVATE KEY-----`;
 
 const EPICS = [
-  {num:"1",  label:"EMS Shift Configuration Homepage"},
-  {num:"2",  label:"[DC Fire][Workflows] — Ability to Hide Sections and Sub-Sections"},
-  {num:"3",  label:"[Attachments] — Adding Attachments to Completed (Locked) Reports"},
-  {num:"4",  label:"CRISP Integration — MDM Message Type via Kno2"},
-  {num:"5",  label:"[Super Admin] — Bulk Delete EMS Incidents for Implementation"},
-  {num:"6",  label:"Zoll SDK 7"},
-  {num:"7",  label:"[QA/QI] — Auto-Assign Reviewers and Escalations"},
-  {num:"8",  label:"Accessibility — State of Michigan Fixes"},
-  {num:"9",  label:"Axon Body Camera Integration"},
-  {num:"10", label:"Apparatus Grid in Short Form Workflow"},
-  {num:"11", label:"AI-Assisted Workflow Builder"},
-  {num:"12", label:"Advanced Form Configurability and Workflow Manipulation"},
-  {num:"13", label:"Integration with Assets / Supply Items Used"},
-  {num:"14", label:"Manually Move Incidents to QA"},
-  {num:"15", label:"Configuration for Phillips to be UI Facing"},
-  {num:"16", label:"Route Genie CAD Integration"},
-  {num:"17", label:"Zoll API — E-9 FedRAMP Integration"},
-  {num:"18", label:"Accept Outcome Data via Webservice from ImageTrend"},
-  {num:"19", label:"Kno2 API — Receive, Send, and Becoming a Responder"},
-  {num:"20", label:"Longitudinal Patient Record — Kno2 Treatment Query + Repeat Patient"},
-  {num:"21", label:"ESA / White Label"},
-  {num:"22", label:"QA/QI Process Overhaul"},
-  {num:"23", label:"Canada ePCR"},
-  {num:"24", label:"ESO Outcome HL7 Attachment Parsing"},
-  {num:"25", label:"Delayed Export Logic"},
-  {num:"26", label:"Medications Module Integration"},
-  {num:"27", label:"Configurable Default Subsection Load State"},
-  {num:"28", label:"Generate Hospital Outcome PDF from ESO HL7 Outcome Messages"},
-  {num:"29", label:"CAD Record Filtering — Exclude Non-EMS Calls"},
-  {num:"30", label:"CAD Auto-Population Logic — Canceled EMS Call Handling"},
-  {num:"31", label:"SFTP Test Record Transmission"}
+  {num:"7",  label:"QA/QI — Auto-Assign Reviewers & Escalations",         desc:"Rule-based automatic assignment of QA reviewers and structured escalation pathways to replace 3-step manual assignment per incident."},
+  {num:"16", label:"Route Genie CAD Integration",                           desc:"Route Genie CAD as a supported data source for ePCR incident creation."},
+  {num:"17", label:"Zoll API — E-9 FedRAMP Integration",                    desc:"API-based Zoll integration (no installed SDK) for E-9 and Military clients on FedRAMP secure servers. Blocked pending Zoll completing their API."},
+  {num:"18", label:"ImageTrend Outcome Data via Webservice",                desc:"Accept outcome data from ImageTrend via web service instead of SFTP. Reuses ESO outcome infrastructure; uses custom schema type 101 to identify outcome payloads."},
+  {num:"27", label:"Configurable Default Subsection Load State",            desc:"Admins configure whether each ePCR subsection loads expanded or collapsed by default. Reduces excessive scrolling for agencies with heavily customized forms."},
+  {num:"28", label:"Generate Hospital Outcome PDF from ESO HL7 Messages",  desc:"Decode Base64-encoded HL7 ADT message in ESO outcome payloads, generate a human-readable PDF, and attach it to the associated ePCR. Avoids full HL7 field mapping."},
+  {num:"4",  label:"CRISP Integration — MDM Message Type via Kno2",        desc:"Deliver ePCR records to CRISP HIE via Kno2 MDM message type. On hold since May 14, 2026 — DC Fire contract review blocks access to DC CRISP."},
+  {num:"10", label:"Apparatus Grid in Short Form Workflow",                 desc:"Make the Apparatus Grid available in the Short Form so agencies completing both ePCR and NERIS/NFRIS don't need to navigate between modules."},
+  {num:"11", label:"AI-Assisted Workflow Builder",                          desc:"Build workflow rules by describing them in plain language. AI generates the rule — no technical knowledge or Schematron file handling required."},
+  {num:"12", label:"Advanced Form Configurability & Workflow Manipulation", desc:"Field-level visibility, conditional behavior, section reordering, form branching, and routing. Admin UI for config without engineering involvement."},
+  {num:"21", label:"Kno2 — ESA / White Label",                             desc:"Enable white label and ESA (Emergency Services Agency) branding and platform configuration."},
+  {num:"19", label:"Kno2 API — Receive, Send & Becoming a Responder",      desc:"Bidirectional Kno2 data exchange — receive inbound data, send outbound records, and register First Due as a Kno2 responder."},
+  {num:"20", label:"Longitudinal Patient Record",                           desc:"Unified view of a patient's prior care history at point of documentation — combining Kno2 Treatment Query results with Repeat Patient data."},
+  {num:"23", label:"Canada ePCR",                                           desc:"Toggle to disable NEMSIS National Schematron per client, removing US-only validation warnings and the 7 national-only required fields. Includes additional tasks to make the Canadian form more Canada-friendly — all within a single branch, without requiring a separate codebase."},
+  {num:"24", label:"ESO Outcome HL7 Attachment Parsing",                   desc:"Decode and parse the base64-encoded HL7 segment in ESO outcome attachments (8T01 type) and map clinical fields to NEMSIS using non-destructive merge logic."},
+  {num:"25", label:"Delayed Export Logic",                                  desc:"Configurable hold period (hours/days) before export to a given endpoint. Allows outcome/insurance data to return before billing export triggers."},
+  {num:"26", label:"Medications Module Integration",                        desc:"Document medications administered during an incident directly within the ePCR, integrated with the Medications Module. Parallel to Assets integration."},
+  {num:"22", label:"QA/QI Process Overhaul",                               desc:"Introduce double blind review, automated escalations, and a linear guided workflow from QA assignment to completion."},
+  {num:"29", label:"CAD Record Filtering — Exclude Non-EMS Calls",         desc:"Filter out non-EMS CAD records from the ePCR workflow. Requires cross-team discussion with CAD and FireDoc teams at next fusion session."},
+  {num:"30", label:"CAD Auto-Population — Canceled Call Handling",         desc:"Prevent Left Scene Time from being auto-populated from CAD on canceled calls where the unit never arrived on scene (flagged by Spotsylvania County)."},
+  {num:"13", label:"Assets & Supply Items Integration",                    desc:"Document consumables used during an incident within the ePCR, connected to the Assets module."},
+  {num:"14", label:"Manually Move Incidents to QA",                        desc:"Allow authorized users to manually push any incident into the QA review queue outside of standard auto-trigger."},
+  {num:"15", label:"Phillips Tempus Pro Configuration — UI Facing",        desc:"Surface Phillips Tempus Pro device configuration options directly in the UI instead of requiring backend setup."},
+  {num:"31", label:"SFTP Test Record Transmission",                        desc:"Send a pre-built test NEMSIS XML through the agency's SFTP endpoint with dynamic dAgency fields injected, and return a clear success/failure result."}
 ];
 
 let order = EPICS.map((_, i) => i);
 let dragSrc = null;
+
+function toggleDesc(idx) {
+  const descEl = document.getElementById('desc-' + idx);
+  const btnEl  = document.getElementById('btn-' + idx);
+  const open = descEl.classList.toggle('visible');
+  btnEl.classList.toggle('open', open);
+  btnEl.innerHTML = open ? 'Details <i class="arrow">▲</i>' : 'Details <i class="arrow">▼</i>';
+}
 
 function renderList() {
   const el = document.getElementById('epic-list');
@@ -259,31 +368,67 @@ function renderList() {
     const e = EPICS[idx];
     const item = document.createElement('div');
     item.className = 'epic-item';
-    item.draggable = true;
     item.dataset.idx = idx;
+
+    // drag row
+    const row = document.createElement('div');
+    row.className = 'epic-row';
+    row.draggable = true;
+
     const numEl = document.createElement('span');
     numEl.className = 'rank-num' + (rank < 3 ? ' top3' : '');
     numEl.textContent = rank + 1;
+
     const handle = document.createElement('span');
     handle.className = 'drag-handle';
     handle.setAttribute('aria-hidden', 'true');
     handle.innerHTML = '&#8942;&#8942;';
+
+    const main = document.createElement('div');
+    main.className = 'epic-main';
+
+    const titleRow = document.createElement('div');
+    titleRow.className = 'epic-title-row';
+
     const label = document.createElement('span');
     label.className = 'epic-label';
     label.textContent = e.label;
+
+    const btn = document.createElement('button');
+    btn.className = 'expand-btn';
+    btn.id = 'btn-' + idx;
+    btn.innerHTML = 'Details <i class="arrow">▼</i>';
+    btn.title = 'Click to read description';
+    btn.onclick = (ev) => { ev.stopPropagation(); toggleDesc(idx); };
+
+    titleRow.appendChild(label);
+    titleRow.appendChild(btn);
+
+    const desc = document.createElement('div');
+    desc.className = 'epic-desc';
+    desc.id = 'desc-' + idx;
+    desc.textContent = e.desc;
+
+    main.appendChild(titleRow);
+    main.appendChild(desc);
+
     const tag = document.createElement('span');
     tag.className = 'epic-tag';
     tag.textContent = 'Epic ' + e.num;
-    item.appendChild(numEl);
-    item.appendChild(handle);
-    item.appendChild(label);
-    item.appendChild(tag);
-    item.addEventListener('dragstart', ev => {
+
+    row.appendChild(numEl);
+    row.appendChild(handle);
+    row.appendChild(main);
+    row.appendChild(tag);
+    item.appendChild(row);
+
+    // drag events on row
+    row.addEventListener('dragstart', ev => {
       dragSrc = idx;
       item.classList.add('dragging');
       ev.dataTransfer.effectAllowed = 'move';
     });
-    item.addEventListener('dragend', () => {
+    row.addEventListener('dragend', () => {
       item.classList.remove('dragging');
       document.querySelectorAll('.epic-item').forEach(x => x.classList.remove('drag-over'));
     });
@@ -294,12 +439,13 @@ function renderList() {
       item.classList.remove('drag-over');
       if (dragSrc === null || dragSrc === idx) return;
       const from = order.indexOf(dragSrc);
-      const to = order.indexOf(idx);
+      const to   = order.indexOf(idx);
       order.splice(from, 1);
       order.splice(to, 0, dragSrc);
       dragSrc = null;
       renderList();
     });
+
     el.appendChild(item);
   });
 }
@@ -371,8 +517,6 @@ async function submitRanking() {
   try {
     const token = await getAccessToken();
     const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });
-    // Header row check / first row = headers if sheet is empty, otherwise just append data
-    // Build one row per submission: Name | Timestamp | Rank1 Epic | Rank2 Epic | ... | Rank31 Epic
     const rankedLabels = order.map(idx => `Epic ${EPICS[idx].num}: ${EPICS[idx].label}`);
     const row = [name, timestamp, ...rankedLabels];
     await appendToSheet(token, [row]);
@@ -388,7 +532,6 @@ async function submitRanking() {
   }
 }
 
-// Write header row on first load if sheet is empty (best effort)
 async function maybeWriteHeader() {
   try {
     const token = await getAccessToken();
@@ -399,7 +542,7 @@ async function maybeWriteHeader() {
       const rankHeaders = EPICS.map((_, i) => `Rank ${i+1}`);
       await appendToSheet(token, [['Name', 'Timestamp (CT)', ...rankHeaders]]);
     }
-  } catch(e) { /* silent — non-critical */ }
+  } catch(e) {}
 }
 
 renderList();
