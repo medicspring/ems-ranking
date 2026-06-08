@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMS 2026 Roadmap — Epic Priority Ranking</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f3;
+    color: #1a1a18;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  .header {
+    background: #fff;
+    border: 1px solid #e0dfd8;
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .header h1 { font-size: 20px; font-weight: 600; color: #1a1a18; margin-bottom: 4px; }
+  .header p { font-size: 14px; color: #666; line-height: 1.5; }
+  .name-section {
+    background: #fff;
+    border: 1px solid #e0dfd8;
+    border-radius: 12px;
+    padding: 1.25rem 1.75rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .name-section label { font-size: 14px; font-weight: 500; color: #1a1a18; white-space: nowrap; }
+  .name-section input {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
+    border: 1px solid #d0cfc8;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1a1a18;
+    background: #fafaf8;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .name-section input:focus { border-color: #4a7fc1; background: #fff; }
+  .instructions {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 10px;
+    padding: 0 2px;
+  }
+  .list-wrap {
+    background: #fff;
+    border: 1px solid #e0dfd8;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+  .epic-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    border-bottom: 1px solid #f0efe8;
+    cursor: grab;
+    user-select: none;
+    transition: background 0.12s;
+    background: #fff;
+  }
+  .epic-item:last-child { border-bottom: none; }
+  .epic-item:hover { background: #fafaf8; }
+  .epic-item.dragging { opacity: 0.35; background: #f5f5f3; }
+  .epic-item.drag-over { background: #eef4fb; border-bottom-color: #a8c4e0; }
+  .rank-num {
+    font-size: 12px;
+    font-weight: 600;
+    color: #aaa;
+    min-width: 24px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .rank-num.top3 { color: #4a7fc1; }
+  .drag-handle {
+    color: #ccc;
+    font-size: 15px;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+  .epic-label { font-size: 13px; color: #1a1a18; flex: 1; line-height: 1.45; }
+  .epic-tag {
+    font-size: 11px;
+    color: #999;
+    background: #f2f1ea;
+    border-radius: 4px;
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+  .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .btn-submit {
+    padding: 10px 24px;
+    background: #1a1a18;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-submit:hover:not(:disabled) { background: #333; }
+  .btn-submit:active:not(:disabled) { transform: scale(0.98); }
+  .btn-submit:disabled { background: #aaa; cursor: not-allowed; }
+  .btn-reset {
+    padding: 10px 16px;
+    background: transparent;
+    color: #666;
+    border: 1px solid #d0cfc8;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .btn-reset:hover { background: #f5f5f3; }
+  .status {
+    font-size: 13px;
+    margin-top: 10px;
+    min-height: 18px;
+    color: #888;
+  }
+  .status.ok { color: #2a7a4a; }
+  .status.err { color: #c03030; }
+  .success-panel {
+    display: none;
+    background: #eef7f2;
+    border: 1px solid #b0d9c0;
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem;
+    margin-top: 1.25rem;
+    text-align: center;
+  }
+  .success-panel h2 { font-size: 17px; font-weight: 600; color: #1a5c34; margin-bottom: 6px; }
+  .success-panel p { font-size: 14px; color: #2a7a4a; }
+  .footer { font-size: 12px; color: #bbb; text-align: center; margin-top: 2rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>EMS 2026 Roadmap — Epic Priority Ranking</h1>
+    <p>Drag and drop the items below into your order of priority, with #1 being the most important. Submit when you're done. Your input will be used to shape the product roadmap.</p>
+  </div>
+
+  <div class="name-section">
+    <label for="submitter-name">Your name</label>
+    <input type="text" id="submitter-name" placeholder="First and last name" maxlength="80" autocomplete="name" />
+  </div>
+
+  <p class="instructions">Drag to reorder — #1 = highest priority</p>
+
+  <div class="list-wrap" id="epic-list"></div>
+
+  <div class="actions">
+    <button class="btn-submit" id="submit-btn" onclick="submitRanking()">Submit my ranking</button>
+    <button class="btn-reset" onclick="resetOrder()">Reset to original order</button>
+  </div>
+  <p class="status" id="status-msg"></p>
+
+  <div class="success-panel" id="success-panel">
+    <h2>Ranking submitted!</h2>
+    <p id="success-msg">Thank you. Your response has been recorded.</p>
+  </div>
+
+  <div class="footer">First Due · EMS Product Team · 2026 Roadmap Planning</div>
+</div>
+
+<script>
+const SPREADSHEET_ID = '1MxErxX9X3ZVz1z8I-u3u9H-1Eu8J4FFYDBeB9Abb3dU';
+const SHEET_NAME = 'Sheet1';
+const SERVICE_ACCOUNT_EMAIL = 'roadmap-pcr@roadmap-pcr.iam.gserviceaccount.com';
+const PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
+MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCsRrYShEQPNDFj
+i3fsHRQj+/64EQZXulXSm0WFfANTTjkCALe3VGH0Xpt0gHdcUb5YrJmhOMZftTvC
+72C8XoA5UC36Ewx3cUiVYofg0vCwMd0hb7JiMx0TyQnhvV4k7IrOlP6Q0M6cI9/U
+LmsRu6XgsQtRBCSpSFFJDvnYHH3UeEeEGimgNuB/EXdxyo2IF9RgDLDrJ6yqQZPQ
+22JQ+/YbVw3OBtcVj6HFCyrEZRn9/oDpfU4WqHCpoLMDAMjueYJuWlslETW70ehg
+tpw39kDBuj01gHYrtEtOUXxtWhNWpUfafn5hMnUw7AVt70DTzF2+hF8H/5+kXiS7
+gH6Wo79RAgMBAAECggEAFf3Y1DhKL96rx1dQcbWskoNimsChnKVOu1nS4B1al1HO
++TB6Q07kSjuhgJe9pO1SbSNrYSdMO395J4NDSAiQOcDAfcHcv4qYh2lSiyKiUvuq
+jNAjZ2G6/oGVX1m7IN+JQKHIdVgSZ+A0fHOIe3UG0c4H8cmjnHB83+SnhCzu6yZR
+3WGa28Hbw6Lmm5Lcb6esYnciD98ePPyAxp39KSj0v6oP6I3SH9lLBZZ955VPMx+n
+byAZ9ibhYmFdLkvxPvO655ztDX/LFd/mdxgpkzp8Ej2T32WTAMh0Txqy40QIZTLm
+ljrNSiNTzcxHHvLvhT5ba9GspSue+yuFZVgjyCVV+QKBgQDcPJilXIAYmo3gVc1o
+vfBpMN0YxEej+MFx/CSc4YLGYi9DZjR2mx86+XiOlIHxSK/dx85kYbzpxzQPY7m6
+PLsNP/sMGEfA9iFlHjqw3w3oeNsZeX/Gj4DWRnLM6fL1TjxyyFJUJIUDf2ogMFMq
+C4EbaMEZfNIN6U9sHa456laM5wKBgQDIQFybDOr/yKXLLRR17NnggCscUDXVSDaz
+BkM7dIymnbaFuF6QxneoX+/Fra12a0pGY7t8o/EcPD5DTbmD/M5/HZvQuE4PEV0l
+1oIE0z6ojpbb2wxNQCwzvmYfJLK1tc+YBRgq0fyjiXrj+qez4KfF+JUsfKpaA6/I
+UYTgetFTBwKBgCVZOWHBoA+MFkdXBbCflWehW71Ze/S4uMWFxwe7zpuqBu3dJUR/
+5fnwWJuFX8v1Ua3AtqWbVZgnqhJ6DQMiTW5fzUktzO1SUDN/vuBD0237INzfF+Yq
+a+TqqYlKm2MyU1n70spmLxB6yRqQV2on7UsipqyV2GF3kXp6RhOYQ/k9AoGAX+Oh
+9IUNCop0CYR+pbFS61O0UQx/mq/HsZYwH4pBx48B1aphbgX7Sl8WG5x80ZWyrV4Y
+ayi9zf1y+xt+2Br4bpopAJsglcqExhefjtvwxxnwVzre+ybdg7GKiSMziBuVWoAm
+AGspBM5SUFS4dUQAUqYkGHdhw1S8mbmfXTaygYUCgYBbTBqYHJP2+NA1bTnFOLy9
+1Zsmn17ZWvfaplqre27vwWL+BMeNiHYj7V8TasUpkSLv4/yeEAYe7eLw21be3BHv
+IsDgF7iUqBGLTJoxoAvlXL7CZIwf+pmRrul0HBghGvXiJJSDC+dpbffC8xQE34aL
+/5q+JAm+ZnB/4w3fg1LtEw==
+-----END PRIVATE KEY-----`;
+
+const EPICS = [
+  {num:"1",  label:"EMS Shift Configuration Homepage"},
+  {num:"2",  label:"[DC Fire][Workflows] — Ability to Hide Sections and Sub-Sections"},
+  {num:"3",  label:"[Attachments] — Adding Attachments to Completed (Locked) Reports"},
+  {num:"4",  label:"CRISP Integration — MDM Message Type via Kno2"},
+  {num:"5",  label:"[Super Admin] — Bulk Delete EMS Incidents for Implementation"},
+  {num:"6",  label:"Zoll SDK 7"},
+  {num:"7",  label:"[QA/QI] — Auto-Assign Reviewers and Escalations"},
+  {num:"8",  label:"Accessibility — State of Michigan Fixes"},
+  {num:"9",  label:"Axon Body Camera Integration"},
+  {num:"10", label:"Apparatus Grid in Short Form Workflow"},
+  {num:"11", label:"AI-Assisted Workflow Builder"},
+  {num:"12", label:"Advanced Form Configurability and Workflow Manipulation"},
+  {num:"13", label:"Integration with Assets / Supply Items Used"},
+  {num:"14", label:"Manually Move Incidents to QA"},
+  {num:"15", label:"Configuration for Phillips to be UI Facing"},
+  {num:"16", label:"Route Genie CAD Integration"},
+  {num:"17", label:"Zoll API — E-9 FedRAMP Integration"},
+  {num:"18", label:"Accept Outcome Data via Webservice from ImageTrend"},
+  {num:"19", label:"Kno2 API — Receive, Send, and Becoming a Responder"},
+  {num:"20", label:"Longitudinal Patient Record — Kno2 Treatment Query + Repeat Patient"},
+  {num:"21", label:"ESA / White Label"},
+  {num:"22", label:"QA/QI Process Overhaul"},
+  {num:"23", label:"Canada ePCR"},
+  {num:"24", label:"ESO Outcome HL7 Attachment Parsing"},
+  {num:"25", label:"Delayed Export Logic"},
+  {num:"26", label:"Medications Module Integration"},
+  {num:"27", label:"Configurable Default Subsection Load State"},
+  {num:"28", label:"Generate Hospital Outcome PDF from ESO HL7 Outcome Messages"},
+  {num:"29", label:"CAD Record Filtering — Exclude Non-EMS Calls"},
+  {num:"30", label:"CAD Auto-Population Logic — Canceled EMS Call Handling"},
+  {num:"31", label:"SFTP Test Record Transmission"}
+];
+
+let order = EPICS.map((_, i) => i);
+let dragSrc = null;
+
+function renderList() {
+  const el = document.getElementById('epic-list');
+  el.innerHTML = '';
+  order.forEach((idx, rank) => {
+    const e = EPICS[idx];
+    const item = document.createElement('div');
+    item.className = 'epic-item';
+    item.draggable = true;
+    item.dataset.idx = idx;
+    const numEl = document.createElement('span');
+    numEl.className = 'rank-num' + (rank < 3 ? ' top3' : '');
+    numEl.textContent = rank + 1;
+    const handle = document.createElement('span');
+    handle.className = 'drag-handle';
+    handle.setAttribute('aria-hidden', 'true');
+    handle.innerHTML = '&#8942;&#8942;';
+    const label = document.createElement('span');
+    label.className = 'epic-label';
+    label.textContent = e.label;
+    const tag = document.createElement('span');
+    tag.className = 'epic-tag';
+    tag.textContent = 'Epic ' + e.num;
+    item.appendChild(numEl);
+    item.appendChild(handle);
+    item.appendChild(label);
+    item.appendChild(tag);
+    item.addEventListener('dragstart', ev => {
+      dragSrc = idx;
+      item.classList.add('dragging');
+      ev.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      document.querySelectorAll('.epic-item').forEach(x => x.classList.remove('drag-over'));
+    });
+    item.addEventListener('dragover', ev => { ev.preventDefault(); item.classList.add('drag-over'); });
+    item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+    item.addEventListener('drop', ev => {
+      ev.preventDefault();
+      item.classList.remove('drag-over');
+      if (dragSrc === null || dragSrc === idx) return;
+      const from = order.indexOf(dragSrc);
+      const to = order.indexOf(idx);
+      order.splice(from, 1);
+      order.splice(to, 0, dragSrc);
+      dragSrc = null;
+      renderList();
+    });
+    el.appendChild(item);
+  });
+}
+
+function resetOrder() {
+  order = EPICS.map((_, i) => i);
+  renderList();
+  setStatus('');
+}
+
+function setStatus(msg, isErr) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = 'status' + (isErr ? ' err' : (msg ? ' ok' : ''));
+}
+
+// --- JWT / Google Sheets Auth ---
+
+async function getAccessToken() {
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const now = Math.floor(Date.now() / 1000);
+  const claim = {
+    iss: SERVICE_ACCOUNT_EMAIL,
+    scope: 'https://www.googleapis.com/auth/spreadsheets',
+    aud: 'https://oauth2.googleapis.com/token',
+    exp: now + 3600,
+    iat: now
+  };
+  const b64 = s => btoa(unescape(encodeURIComponent(JSON.stringify(s)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const unsigned = b64(header) + '.' + b64(claim);
+  const key = await importPrivateKey(PRIVATE_KEY);
+  const sig = await window.crypto.subtle.sign({ name: 'RSASSA-PKCS1-v1_5' }, key, new TextEncoder().encode(unsigned));
+  const sigB64 = btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const jwt = unsigned + '.' + sigB64;
+  const resp = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=' + jwt
+  });
+  const data = await resp.json();
+  if (!data.access_token) throw new Error('Token error: ' + JSON.stringify(data));
+  return data.access_token;
+}
+
+async function importPrivateKey(pem) {
+  const pemBody = pem.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\n/g, '');
+  const der = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0));
+  return crypto.subtle.importKey('pkcs8', der.buffer, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+}
+
+async function appendToSheet(token, values) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}!A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`;
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values })
+  });
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  return data;
+}
+
+async function submitRanking() {
+  const name = document.getElementById('submitter-name').value.trim();
+  if (!name) { setStatus('Please enter your name before submitting.', true); return; }
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  setStatus('Submitting...');
+  try {
+    const token = await getAccessToken();
+    const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });
+    // Header row check / first row = headers if sheet is empty, otherwise just append data
+    // Build one row per submission: Name | Timestamp | Rank1 Epic | Rank2 Epic | ... | Rank31 Epic
+    const rankedLabels = order.map(idx => `Epic ${EPICS[idx].num}: ${EPICS[idx].label}`);
+    const row = [name, timestamp, ...rankedLabels];
+    await appendToSheet(token, [row]);
+    setStatus('');
+    document.getElementById('success-panel').style.display = 'block';
+    document.getElementById('success-msg').textContent = `Thank you, ${name}. Your ranking has been recorded.`;
+    document.querySelector('.actions').style.display = 'none';
+    document.getElementById('epic-list').style.pointerEvents = 'none';
+    document.getElementById('epic-list').style.opacity = '0.5';
+  } catch(err) {
+    setStatus('Submission failed: ' + err.message, true);
+    btn.disabled = false;
+  }
+}
+
+// Write header row on first load if sheet is empty (best effort)
+async function maybeWriteHeader() {
+  try {
+    const token = await getAccessToken();
+    const checkUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}!A1`;
+    const resp = await fetch(checkUrl, { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await resp.json();
+    if (!data.values || data.values.length === 0) {
+      const rankHeaders = EPICS.map((_, i) => `Rank ${i+1}`);
+      await appendToSheet(token, [['Name', 'Timestamp (CT)', ...rankHeaders]]);
+    }
+  } catch(e) { /* silent — non-critical */ }
+}
+
+renderList();
+maybeWriteHeader();
+</script>
+</body>
+</html>
