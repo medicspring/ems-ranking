@@ -197,6 +197,42 @@
   .success-panel h2 { font-size: 17px; font-weight: 600; color: #1a5c34; margin-bottom: 6px; }
   .success-panel p { font-size: 14px; color: #2a7a4a; }
   .footer { font-size: 12px; color: #bbb; text-align: center; margin-top: 2rem; }
+  .missing-section {
+    background: #fff;
+    border: 1px solid #e0dfd8;
+    border-radius: 12px;
+    padding: 1.25rem 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .missing-section label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a18;
+    margin-bottom: 6px;
+  }
+  .missing-section p {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .missing-section textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #d0cfc8;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-family: inherit;
+    color: #1a1a18;
+    background: #fafaf8;
+    outline: none;
+    resize: vertical;
+    min-height: 90px;
+    transition: border-color 0.15s;
+    line-height: 1.5;
+  }
+  .missing-section textarea:focus { border-color: #4a7fc1; background: #fff; }
   /* passphrase gate */
   .gate {
     background: #fff;
@@ -258,6 +294,12 @@
     <p class="instructions">Drag to reorder — #1 = highest priority &nbsp;·&nbsp; Click "Details ▾" to read about an item</p>
 
     <div class="list-wrap" id="epic-list"></div>
+
+    <div class="missing-section">
+      <label for="missing-items">Anything missing from your top 10?</label>
+      <p>If there's a capability or initiative you'd rank in your top 10 that isn't reflected in this list, describe it briefly below.</p>
+      <textarea id="missing-items" placeholder="e.g. 'Better offline support for rural areas' or 'Tablet-optimized UI overhaul'"></textarea>
+    </div>
 
     <div class="actions">
       <button class="btn-submit" id="submit-btn" onclick="submitRanking()">Submit my ranking</button>
@@ -338,6 +380,7 @@ const EPICS = [
   {num:"19", label:"Kno2 API — Receive, Send & Becoming a Responder",      desc:"Bidirectional Kno2 data exchange — receive inbound data, send outbound records, and register First Due as a Kno2 responder."},
   {num:"20", label:"Longitudinal Patient Record",                           desc:"Unified view of a patient's prior care history at point of documentation — combining Kno2 Treatment Query results with Repeat Patient data."},
   {num:"23", label:"Canada ePCR",                                           desc:"Toggle to disable NEMSIS National Schematron per client, removing US-only validation warnings and the 7 national-only required fields. Includes additional tasks to make the Canadian form more Canada-friendly — all within a single branch, without requiring a separate codebase."},
+  {num:"24", label:"ESO Outcome HL7 Attachment Parsing",                   desc:"Decode and parse the base64-encoded HL7 segment in ESO outcome attachments (8T01 type) and map clinical fields to NEMSIS using non-destructive merge logic."},
   {num:"25", label:"Delayed Export Logic",                                  desc:"Configurable hold period (hours/days) before export to a given endpoint. Allows outcome/insurance data to return before billing export triggers."},
   {num:"26", label:"Medications Module Integration",                        desc:"Document medications administered during an incident directly within the ePCR, integrated with the Medications Module. Parallel to Assets integration."},
   {num:"22", label:"QA/QI Process Overhaul",                               desc:"Introduce double blind review, automated escalations, and a linear guided workflow from QA assignment to completion."},
@@ -517,7 +560,8 @@ async function submitRanking() {
     const token = await getAccessToken();
     const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });
     const rankedLabels = order.map(idx => `Epic ${EPICS[idx].num}: ${EPICS[idx].label}`);
-    const row = [name, timestamp, ...rankedLabels];
+    const missingItems = document.getElementById('missing-items').value.trim();
+    const row = [name, timestamp, ...rankedLabels, missingItems];
     await appendToSheet(token, [row]);
     setStatus('');
     document.getElementById('success-panel').style.display = 'block';
@@ -539,7 +583,7 @@ async function maybeWriteHeader() {
     const data = await resp.json();
     if (!data.values || data.values.length === 0) {
       const rankHeaders = EPICS.map((_, i) => `Rank ${i+1}`);
-      await appendToSheet(token, [['Name', 'Timestamp (CT)', ...rankHeaders]]);
+      await appendToSheet(token, [['Name', 'Timestamp (CT)', ...rankHeaders, 'Missing Items']]);
     }
   } catch(e) {}
 }
